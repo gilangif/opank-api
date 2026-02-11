@@ -5,7 +5,7 @@ import https from "https"
 const invites = []
 
 const request = axios.create({
-  timeout: 30000,
+  timeout: 60000,
   httpsAgent: new https.Agent({ family: 4 }),
   headers: {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
