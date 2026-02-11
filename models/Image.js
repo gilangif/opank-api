@@ -71,29 +71,43 @@ class Image {
     }
 
     if (method === 1) {
-      form.append("file", buff, { name: "file", filename, contentType: "image/jpeg" })
+      try {
+        form.append("file", buff, { name: "file", filename, contentType: "image/jpeg" })
 
-      const { data } = await request.post("https://portal.vision.cognitive.azure.com/api/demo/analyze?features=read", form)
-      const { readResult } = data || {}
+        const { data } = await request.post("https://portal.vision.cognitive.azure.com/api/demo/analyze?features=read", form)
+        const { readResult } = data || {}
 
-      ocr = readResult?.blocks[0]?.lines?.map((x) => x.text).join(" ") || ""
-    }
-
-    if (method === 2) {
-      const body = { imageBase64: `data:image/jpeg;base64,${buff.toString("base64")}`, languageIndex: "ENG" }
-
-      const { data: result } = await request.post("https://app.easyscreenocr.com/api/ocr/GetBaiduOcrTextNew", body)
-      const { data } = result || {}
-      const { text = "" } = data || {}
-
-      if (text.includes("You have exceeded the upload rate limit")) {
+        ocr = readResult?.blocks[0]?.lines?.map((x) => x.text).join(" ") || ""
+      } catch (error) {
         console.log("\x1b[90m")
-        console.log(`# Fallback : method ${method} exceeded rate limit\x1b[0m`)
+        console.log(`# Fallback : method ${method} error (${error.message || "unknown"})\x1b[0m`)
 
         return this.ocr(resize, flip, 0)
       }
+    }
 
-      ocr = text.replace(/\s/g, " ")
+    if (method === 2) {
+      try {
+        const body = { imageBase64: `data:image/jpeg;base64,${buff.toString("base64")}`, languageIndex: "ENG" }
+
+        const { data: result } = await request.post("https://app.easyscreenocr.com/api/ocr/GetBaiduOcrTextNew", body)
+        const { data } = result || {}
+        const { text = "" } = data || {}
+
+        if (text.includes("You have exceeded the upload rate limit")) {
+          console.log("\x1b[90m")
+          console.log(`# Fallback : method ${method} exceeded rate limit\x1b[0m`)
+
+          return this.ocr(resize, flip, 0)
+        }
+
+        ocr = text.replace(/\s/g, " ")
+      } catch (error) {
+        console.log("\x1b[90m")
+        console.log(`# Fallback : method ${method} error (${error.message || "unknown"})\x1b[0m`)
+
+        return this.ocr(resize, flip, 0)
+      }
     }
 
     if (method === 3) {
