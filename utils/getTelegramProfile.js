@@ -1,10 +1,22 @@
 import * as cheerio from "cheerio"
 import axios from "axios"
 
-const request = axios.create({ timeout: 1 * 30 * 1000 })
+const invites = []
+
+const request = axios.create({
+  timeout: 30000,
+  httpsAgent: new https.Agent({ family: 4 }),
+  headers: {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    Connection: "keep-alive",
+  },
+})
 
 export default async function getTelegramProfile(invite) {
   const link = "https://t.me/" + invite
+  const find = invites.includes(invite)
 
   const output = {
     invite,
@@ -21,6 +33,11 @@ export default async function getTelegramProfile(invite) {
     links: 0,
     dana: [],
   }
+
+  if (invites.length > 500) invites.pop()
+  if (find) return output
+
+  invites.unshift(invite)
 
   try {
     const { data: html } = await request(link)
@@ -46,10 +63,11 @@ export default async function getTelegramProfile(invite) {
 
       const info = Array.from({ length: counter.length }, (x, i) => [type[i], parseInt(counter[i] || 0)])
 
-      const dana =
+      const dana = (
         $("div.tgme_widget_message_text.js-message_text")
           .map((_, el) => $(el).text().trim())
           .get() || []
+      ).slice(-1)
 
       Object.assign(output, { dana, ...Object.fromEntries(info) })
     }

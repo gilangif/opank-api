@@ -44,7 +44,7 @@ class ParserController {
         } else {
           const detail = await getTelegramProfile(invite)
 
-          saveGroup(detail)
+          if (detail.title) saveGroup(detail)
 
           output.text = detail.dana.join("\n")
           groups.unshift(detail)
