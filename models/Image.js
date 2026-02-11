@@ -86,6 +86,13 @@ class Image {
       const { data } = result || {}
       const { text = "" } = data || {}
 
+      if (text.includes("You have exceeded the upload rate limit")) {
+        console.log("\x1b[90m");
+        console.log("# Fallback : method 2 exceeded rate limit\x1b[0m");
+        
+        return this.ocr(resize, flip, 0)
+      }
+
       ocr = text.replace(/\s/g, " ")
     }
 
