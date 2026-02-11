@@ -56,7 +56,7 @@ class ImageController {
       method = (method + 1) % 5
 
       console.log("\x1b[90m")
-      console.log(`# image : ${size / 1024} KB ${id} ${title} (${format})\x1b[0m`)
+      console.log(`# image : ${(size / 1024).toFixed(2)} KB ${id} ${title} (${format})\x1b[0m`)
 
       const image = new Image(buffer)
       const result = await image.analyze(resize, flop, method, format)
