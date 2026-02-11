@@ -117,9 +117,9 @@ class Image {
     return { type: "OCR", text: ocr.trim() }
   }
 
-  async analyze(resize, flip, method) {
+  async analyze(resize, flip, method, format) {
     const qr = await this.qr(resize, flip, method)
-    if (qr.text) return qr
+    if (format === "webp" || qr.text) return qr
 
     const ocr = await this.ocr(resize, flip, method)
     if (ocr.text) return ocr
