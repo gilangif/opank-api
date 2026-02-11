@@ -87,9 +87,9 @@ class Image {
       const { text = "" } = data || {}
 
       if (text.includes("You have exceeded the upload rate limit")) {
-        console.log("\x1b[90m");
-        console.log("# Fallback : method 2 exceeded rate limit\x1b[0m");
-        
+        console.log("\x1b[90m")
+        console.log(`# Fallback : method ${method} exceeded rate limit\x1b[0m`)
+
         return this.ocr(resize, flip, 0)
       }
 
@@ -97,16 +97,23 @@ class Image {
     }
 
     if (method === 3) {
-      form.append("file", buff, { name: "file", filename: "blob", contentType: "image/jpeg" })
+      try {
+        form.append("file", buff, { name: "file", filename: "blob", contentType: "image/jpeg" })
 
-      const url = "https://translate.yandex.net/ocr/v1.1/recognize?srv=tr-image&sid=e59c3c10.67807267.f2234866.74722d696d616765&lang=*&rotate=auto&yu=9967269191736471143&yum=1736471147884554480"
-      const headers = { headers: { ...form.getHeaders() } }
+        const url = "https://translate.yandex.net/ocr/v1.1/recognize?srv=tr-image&sid=e59c3c10.67807267.f2234866.74722d696d616765&lang=*&rotate=auto&yu=9967269191736471143&yum=1736471147884554480"
+        const headers = { headers: { ...form.getHeaders() } }
 
-      const { data: result } = await request.post(url, form, headers)
-      const { data } = result || {}
-      const { blocks = [] } = data || {}
+        const { data: result } = await request.post(url, form, headers)
+        const { data } = result || {}
+        const { blocks = [] } = data || {}
 
-      ocr = blocks.map((x) => x?.boxes?.map((x) => x?.text).join(" ")).join(" ") || ""
+        ocr = blocks.map((x) => x?.boxes?.map((x) => x?.text).join(" ")).join(" ") || ""
+      } catch (error) {
+        console.log("\x1b[90m")
+        console.log(`# Fallback : method ${method} error (${error.message || "unknown"})\x1b[0m`)
+
+        return this.ocr(resize, flip, 0)
+      }
     }
 
     if (method === 4) {
