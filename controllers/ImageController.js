@@ -46,7 +46,7 @@ class ImageController {
   static async analyze(req, res, next) {
     try {
       const { fieldname, originalname, encoding, mimetype, buffer, size } = req.file || {}
-      const { scale, flip, format } = req.body || {}
+      const { id, scale, flip, format } = req.body || {}
 
       if (!buffer) throw { message: "buffer file is not provided", status: 400 }
 
@@ -54,6 +54,9 @@ class ImageController {
       const flop = flip === "true" ? true : false
 
       method = (method + 1) % 5
+
+      console.log("\x1b[90m")
+      console.log(`# image : ${id} (${format})\x1b[0m`)
 
       const image = new Image(buffer)
       const result = await image.analyze(resize, flop, method, format)
