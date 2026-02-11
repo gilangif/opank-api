@@ -33,7 +33,7 @@ class Image {
 
     const { data: text } = jsqr(data, width, height) || {}
 
-    return { type: "ocr", text }
+    return { type: "QR", text }
   }
 
   async ocr(resize, flip, method) {
@@ -114,7 +114,7 @@ class Image {
       ocr = data?.text?.replace(/\s/g, " ") || ""
     }
 
-    return { type: "ocr", text: ocr.trim() }
+    return { type: "OCR", text: ocr.trim() }
   }
 
   async analyze(resize, flip, method) {
