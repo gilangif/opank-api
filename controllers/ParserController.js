@@ -46,7 +46,7 @@ class ParserController {
 
           if (detail.title) saveGroup(detail)
 
-          output.text = detail.dana.join("\n")
+          output.text = detail.dana.slice(-1).join("\n")
           groups.unshift(detail)
         }
       } else if (special.find((x) => url.includes(x))) {

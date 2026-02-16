@@ -131,15 +131,22 @@ class Image {
     }
 
     if (method === 4) {
-      form.append("image", buff, { name: "file", filename, contentType: "image/jpeg" })
-      form.append("user", "d9dbf700-7f57-4767-a334-f486d65c8ab7")
+      try {
+        form.append("image", buff, { name: "file", filename, contentType: "image/jpeg" })
+        form.append("user", "d9dbf700-7f57-4767-a334-f486d65c8ab7")
 
-      const url = "http://158.160.66.115:40000/image_to_text"
-      const headers = { headers: { ...form.getHeaders() } }
+        const url = "http://158.160.66.115:40000/image_to_text"
+        const headers = { headers: { ...form.getHeaders() } }
 
-      const { data } = await request.post(url, form, headers)
+        const { data } = await request.post(url, form, headers)
 
-      ocr = data?.text?.replace(/\s/g, " ") || ""
+        ocr = data?.text?.replace(/\s/g, " ") || ""
+      } catch (error) {
+        console.log("\x1b[90m")
+        console.log(`# Fallback : method ${method} error (${error.message || "unknown"})\x1b[0m`)
+
+        return this.ocr(resize, flip, 0)
+      }
     }
 
     return { type: "OCR", text: ocr.trim() }

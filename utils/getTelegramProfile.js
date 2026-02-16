@@ -22,7 +22,7 @@ export default async function getTelegramProfile(invite) {
   const output = {
     invite,
     link,
-    photo: "",
+    thumb: "",
     preview: "",
     title: "",
     extra: "",
@@ -44,7 +44,7 @@ export default async function getTelegramProfile(invite) {
     const { data: html } = await request(link)
     const $ = cheerio.load(html)
 
-    output.photo = $("img.tgme_page_photo_image")?.attr()?.src || ""
+    output.thumb = $("img.tgme_page_photo_image")?.attr()?.src || ""
     output.preview = $("a.tgme_page_context_link")?.attr()?.href || ""
     output.title = $("div.tgme_page_title > span")?.text()?.trim() || ""
     output.extra = $("div.tgme_page_extra")?.text()?.trim() || ""
@@ -64,11 +64,10 @@ export default async function getTelegramProfile(invite) {
 
       const info = Array.from({ length: counter.length }, (x, i) => [type[i], parseInt(counter[i] || 0)])
 
-      const dana = (
+      const dana =
         $("div.tgme_widget_message_text.js-message_text")
           .map((_, el) => $(el).text().trim())
           .get() || []
-      ).slice(-1)
 
       Object.assign(output, { dana, ...Object.fromEntries(info) })
     }
