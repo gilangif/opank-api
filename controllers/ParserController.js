@@ -1,10 +1,9 @@
-import { groups, links } from "../config/index.js"
+import { queue } from "../config/index.js"
 
 import getTelegramProfile from "../utils/getTelegramProfile.js"
 
 import path from "path"
 import axios from "axios"
-import saveGroup from "../utils/saveGroup.js"
 
 const request = axios.create({ timeout: 1 * 30 * 1000 })
 
@@ -18,36 +17,58 @@ class ParserController {
       const ud = new URL(url)
 
       const special = ["tinyurl.com", "shorturl.at"]
+      const blacklist = ["danakaget", "gopay", "shopee", "google", "github", "youtube", "youtu.be", "whatsapp", "shp.ee"]
+
       const file = ["apk", "exe", "sh", "deb", "tgz", "rar", "zip", "xz", "jpg", "jpeg", "mp4", "webm", "wav", "mp3", "flac", "aac", "amr"]
 
       const output = { url, text: "", status: "NOT_FOUND", cache: false }
 
-      const search = links.find((x) => x.url === url)
+      const search = await new Promise((resolve) => {
+        const type = "FIND_LINK"
+        const id = type + "_" + Date.now() + "_" + Math.ceil(Math.random() * 10000)
 
-      if (search) {
-        output.text = search.text
-        output.status = search.status + "_CACHE"
+        queue.set(id, resolve)
+        process.send({ id, type, url })
+      })
+
+      if (search.output) {
+        const s = search.output
+
+        output.text = s.text
+        output.status = s.status + "_CACHE"
         output.cache = true
+      } else if (blacklist.find((x) => url.includes(x))) {
+        output.text = ""
+        output.status = "BLACKLIST"
       } else if (file.find((x) => "." + x === path.extname(ud.pathname))) {
         output.status = "FILE"
       } else if (ud.hostname === "t.me") {
         const invite = ud.pathname.split("/")[1]
-        const find = groups.find((x) => x.invite === invite)
 
-        output.status = "TELEGRAM"
+        const find = await new Promise((resolve) => {
+          const type = "FIND_GROUP"
+          const id = type + "_" + Date.now() + "_" + Math.ceil(Math.random() * 10000)
 
-        if (groups.length > 1000) groups.pop()
+          queue.set(id, resolve)
+          process.send({ id, type, url, invite })
+        })
 
-        if (find) {
-          output.text = find.dana.join("\n")
+        if (find.detail) {
+          const f = find.detail
+
+          output.status = "TELEGRAM"
+          output.text = `${f.title}\n\n${f.description}\n\n${f.dana.join("\n")}`
           output.cache = true
         } else {
           const detail = await getTelegramProfile(invite)
 
-          if (detail.title) saveGroup(detail)
+          const type = "SAVE_GROUP"
+          const id = type + "_" + Date.now() + "_" + Math.ceil(Math.random() * 10000)
 
-          output.text = detail.dana.slice(-1).join("\n")
-          groups.unshift(detail)
+          output.status = "TELEGRAM"
+          output.text = `${detail.title}\n\n${detail.description}\n\n${detail.dana.join("\n")}`
+
+          process.send({ type, id, type, url, invite, detail })
         }
       } else if (special.find((x) => url.includes(x))) {
         const { data: result } = await request.post("https://unshorten.net/", new URLSearchParams({ url }))
@@ -70,11 +91,12 @@ class ParserController {
         }
       }
 
-      if (!search) links.unshift(output)
-      if (links.length > 1000) links.pop()
+      if (!search.output) {
+        const type = "SAVE_LINK"
+        const id = type + "_" + Date.now() + "_" + Math.ceil(Math.random() * 10000)
 
-      console.log("\x1b[90m")
-      console.log(`# link : ${url} (${output.status})\x1b[0m`)
+        process.send({ type, id, type, url, output })
+      }
 
       res.status(200).json(output)
     } catch (error) {

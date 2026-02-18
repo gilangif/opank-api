@@ -2,7 +2,7 @@ import multer from "multer"
 
 export const err = (err, req, res, next) => {
   try {
-    console.error("ERROR:", err?.message || err)
+    console.error("# ERROR:", err?.message || err)
 
     if (err?.stack) {
       console.error(err.stack)

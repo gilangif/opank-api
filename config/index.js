@@ -1,2 +1,1 @@
-export const links = []
-export const groups = []
+export const queue = new Map()

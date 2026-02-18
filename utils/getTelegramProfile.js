@@ -27,6 +27,7 @@ export default async function getTelegramProfile(invite) {
     title: "",
     extra: "",
     description: "",
+    member: 0,
     subscribers: 0,
     photos: 0,
     videos: 0,
@@ -49,6 +50,13 @@ export default async function getTelegramProfile(invite) {
     output.title = $("div.tgme_page_title > span")?.text()?.trim() || ""
     output.extra = $("div.tgme_page_extra")?.text()?.trim() || ""
     output.description = $("div.tgme_page_description")?.text()?.trim() || ""
+
+    if (output.description) {
+      const extra = output.extra.split(" members")[0].replace(/\s+/g, "")
+      const member = parseInt(extra) || 0
+
+      output.member = member
+    }
 
     if (output.title && output.extra !== `@${invite}` && !output.description.includes("If you have Telegram, you can contact")) {
       const { data } = await request(`https://t.me/s/${invite}?q=danakaget`)
