@@ -17,7 +17,7 @@ class Group {
     return data
   }
 
-  static async lists(page, limit, offset, search, sort, order) {
+  static async lists(page, limit, offset, search, sort, order, filter) {
     let where = ""
     let index = 1
     let params = []
@@ -27,6 +27,15 @@ class Group {
     if (sort === "mark") orders = `ORDER BY mark DESC`
     if (sort === "unmark") orders = `ORDER BY mark ASC`
     if (sort === "dana") orders = `ORDER BY dana DESC`
+
+    if (filter === "restrict") {
+      where = `WHERE extra NOT ILIKE '%@%'
+                AND title NOT ILIKE '%bokep%'
+                AND description NOT ILIKE '%bokep%'
+                AND title NOT ILIKE '%xiaomi%'
+                AND description NOT ILIKE '%xiaomi%'
+                AND (member::int > 30 OR cardinality(dana) > 0)`
+    }
 
     if (search && search.trim() !== "") {
       where = `WHERE invite ILIKE $${index}
