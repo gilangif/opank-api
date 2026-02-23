@@ -17,7 +17,7 @@ class Group {
     return data
   }
 
-  static async lists(page = 1, limit = 50, offset, search, sort, order, filter) {
+  static async lists(page = 1, limit = 50, search, sort, order, filter) {
     const offset = (page - 1) * limit
     const params = []
 
