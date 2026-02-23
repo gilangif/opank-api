@@ -28,7 +28,10 @@ class Group {
 
     if (sort === "mark") orders = `ORDER BY mark DESC`
     if (sort === "unmark") orders = `ORDER BY mark ASC`
-    if (sort === "dana") orders = `ORDER BY dana DESC`
+
+    if (filter === "dana") {
+      where = `WHERE COALESCE(cardinality(dana), 0) > 0`
+    }
 
     if (filter === "restrict") {
       where = `WHERE extra NOT ILIKE '%@%'
