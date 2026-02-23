@@ -100,6 +100,10 @@ class ParserController {
 
       res.status(200).json(output)
     } catch (error) {
+      console.log("\x1b[36m")
+      console.log(`# ERROR URL : ${req?.body?.url} (${error.message})`)
+      console.log("\x1b[0m")
+
       next(error)
     }
   }
