@@ -17,10 +17,12 @@ class Group {
     return data
   }
 
-  static async lists(page, limit, offset, search, sort, order, filter) {
+  static async lists(page = 1, limit = 50, offset, search, sort, order, filter) {
+    const offset = (page - 1) * limit
+    const params = []
+
     let where = ""
     let index = 1
-    let params = []
 
     let orders = `ORDER BY id ${order === "ASC" ? "ASC" : "DESC"}`
 
