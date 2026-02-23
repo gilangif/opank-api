@@ -3,7 +3,7 @@ import Group from "../models/Group.js"
 class GroupController {
   static async getLists(req, res, next) {
     try {
-      const { page, limit, search = "", sort, order = "DESC", filter = "all" } = req.query
+      const { page = 1, limit = 50, search = "", sort, order = "DESC", filter = "all" } = req.query
 
       const p = parseInt(page)
       const l = parseInt(limit)
