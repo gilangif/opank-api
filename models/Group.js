@@ -61,6 +61,9 @@ class Group {
 
     params.push(limit, offset)
 
+    console.log(qd)
+    console.log(params)
+
     const qr = `SELECT COUNT(*) FROM groups ${where};`
 
     const { rows, rowCount: total_data } = await db.query(qd, params)
